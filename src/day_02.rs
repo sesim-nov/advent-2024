@@ -1,9 +1,5 @@
 use crate::read_file::get_lines;
 
-pub fn part_02(fname: &str) {
-    println!("STUB");
-}
-
 #[derive(Eq, PartialEq)]
 enum Slope {
     Increasing,
@@ -53,6 +49,22 @@ pub fn part_01(fname: &str) {
         .map(|line| -> usize {
             let record = parse_line(&line.unwrap());
             if is_safe(record) {1} else {0}
+        })
+        .sum();
+    println!("{}", total);
+}
+
+pub fn part_02(fname: &str) {
+    let lines = get_lines(fname);
+    let total: usize = lines
+        .map(|line| -> usize {
+            let record = parse_line(&line.unwrap());
+            for i in 0..record.len() {
+                let mut record_cpy = record.clone();
+                record_cpy.remove(i);
+                if is_safe(record_cpy) {return 1}
+            }
+            0
         })
         .sum();
     println!("{}", total);
