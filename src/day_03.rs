@@ -10,9 +10,7 @@ pub fn part_01(fname: &str) {
     let needles = apply_mul_regex(&memory);
     let total: usize = needles
         .into_iter()
-        .map(|x| -> usize {
-            mul_on_capture(x)
-        })
+        .map(|x| -> usize { mul_on_capture(x) })
         .sum();
     println!("Part 1: {}", total)
 }
@@ -23,9 +21,7 @@ pub fn part_02(fname: &str) {
     let inac = get_inactive_ranges(apply_do_regex(&memory));
     let total: usize = needles
         .into_iter()
-        .map(|x| -> usize {
-            checked_mul_on_capture(x, &inac)
-        })
+        .map(|x| -> usize { checked_mul_on_capture(x, &inac) })
         .sum();
     println!("Part 2: {}", total)
 }
@@ -54,7 +50,7 @@ fn get_inactive_ranges(caps: Vec<Captures>) -> Vec<Range<usize>> {
                     disabled = true;
                     last_change = cap.get(0).unwrap().start()
                 }
-            },
+            }
             _ => {
                 if disabled {
                     disabled = false;
@@ -70,15 +66,13 @@ fn get_inactive_ranges(caps: Vec<Captures>) -> Vec<Range<usize>> {
 fn mul_on_capture(m: Captures) -> usize {
     let lhs: usize = m.get(1).unwrap().as_str().parse().unwrap();
     let rhs: usize = m.get(2).unwrap().as_str().parse().unwrap();
-    lhs*rhs
+    lhs * rhs
 }
 
 fn checked_mul_on_capture(m: Captures, inac: &Vec<Range<usize>>) -> usize {
     let is_disabled = inac
         .iter()
-        .any(|x| -> bool {
-            x.contains(&m.get(0).unwrap().start())
-        });
+        .any(|x| -> bool { x.contains(&m.get(0).unwrap().start()) });
     if !is_disabled {
         mul_on_capture(m)
     } else {

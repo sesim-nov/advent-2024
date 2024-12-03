@@ -26,20 +26,14 @@ fn is_safe(record: Vec<usize>) -> bool {
             }
         })
         .collect();
-    // If all enums are the same, and none are OOB, we're good. 
-    res_vec
-        .windows(2)
-        .all(|x| -> bool {
-            x[0] == x[1]
-        }) && *res_vec.get(0).unwrap() != Slope::BadSlope
+    // If all enums are the same, and none are OOB, we're good.
+    res_vec.windows(2).all(|x| -> bool { x[0] == x[1] })
+        && *res_vec.get(0).unwrap() != Slope::BadSlope
 }
 
 fn parse_line(line: &str) -> Vec<usize> {
-    line
-        .split_whitespace()
-        .map(|x| -> usize {
-            x.parse().unwrap()
-        })
+    line.split_whitespace()
+        .map(|x| -> usize { x.parse().unwrap() })
         .collect()
 }
 
@@ -48,7 +42,11 @@ pub fn part_01(fname: &str) {
     let total: usize = lines
         .map(|line| -> usize {
             let record = parse_line(&line.unwrap());
-            if is_safe(record) {1} else {0}
+            if is_safe(record) {
+                1
+            } else {
+                0
+            }
         })
         .sum();
     println!("{}", total);
@@ -62,7 +60,9 @@ pub fn part_02(fname: &str) {
             for i in 0..record.len() {
                 let mut record_cpy = record.clone();
                 record_cpy.remove(i);
-                if is_safe(record_cpy) {return 1}
+                if is_safe(record_cpy) {
+                    return 1;
+                }
             }
             0
         })
