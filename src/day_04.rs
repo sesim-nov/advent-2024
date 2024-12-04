@@ -3,7 +3,9 @@ use grid::Grid;
 use crate::read_file::get_lines;
 
 pub fn part_01(fname: &str) {
-    println!("STUB");
+    let g = read_input(fname);
+    let xmases = find_xmas_count(g);
+    println!("Part 01: {}", xmases);
 }
 
 pub fn part_02(fname: &str) {
