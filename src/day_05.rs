@@ -1,3 +1,6 @@
+mod rule;
+use rule::*;
+
 pub fn part_01(fname: &str) {
     println!("STUB");
 }
