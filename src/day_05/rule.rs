@@ -1,6 +1,6 @@
-struct Rule {
-    left: usize, 
-    right: usize,
+pub struct Rule {
+    pub left: usize, 
+    pub right: usize,
 }
 
 impl TryFrom<&str> for Rule {
