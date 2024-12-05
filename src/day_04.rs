@@ -9,7 +9,9 @@ pub fn part_01(fname: &str) {
 }
 
 pub fn part_02(fname: &str) {
-    println!("STUB");
+    let g = read_input(fname);
+    let xmases = find_mas_x_count(g);
+    println!("Part 02: {}", xmases);
 }
 
 fn read_input(fname: &str) -> Grid<char>{
@@ -29,16 +31,16 @@ fn find_xmas_count(g: Grid<char>) -> usize {
     let mut total: usize = 0;
     for (pos, x) in g.indexed_iter() {
         if *x == 'X' {
-            total += directions.iter().map(|dir| look_for_xmas(pos, *dir, "X", &g)).sum::<usize>();
+            total += directions.iter().map(|dir| look_for_xmas(pos, *dir, &g)).sum::<usize>();
         }
     }
     total
 }
 
-fn look_for_xmas(pos: (usize, usize), dir: (isize, isize), sequence: &str, g: &Grid<char>) -> usize {
-    let mut sequence = String::from(sequence);
+fn look_for_xmas(pos: (usize, usize), dir: (isize, isize), g: &Grid<char>) -> usize {
     let mut curr_row = pos.0;
     let mut curr_col = pos.1;
+    let mut sequence = g.get(curr_row, curr_col).unwrap().to_string();
     loop {
         curr_row = match curr_row.checked_add_signed(dir.0){
             Some(e) => e,
@@ -59,6 +61,43 @@ fn look_for_xmas(pos: (usize, usize), dir: (isize, isize), sequence: &str, g: &G
             "XMAS" => break 1,
             _ => break 0
         }
+    }
+}
+
+/// Find the count of times the X-shaped MAS pattern appears in a grid. 
+fn find_mas_x_count(g: Grid<char>) -> usize {
+    let mut total: usize = 0;
+    for (pos, x) in g.indexed_iter() {
+        if *x == 'A' {
+            total += find_mas_x(pos, &g);
+        }
+    }
+    total
+}
+
+fn find_mas_x(pos: (usize, usize), g: &Grid<char>) -> usize {
+    let valid_ptns = ["SSMM", "MMSS", "MSMS", "SMSM"];
+    let quadrants = vec![(-1, -1), (-1, 1), (1, -1), (1,1)];
+    let ptn: String = quadrants.iter().map(|(dr,dc)| -> char {
+            let r = match pos.0.checked_add_signed(*dr) {
+                None => return '\0',
+                Some(i)=> i
+            };
+            let c = match pos.1.checked_add_signed(*dc) {
+                None => return '\0',
+                Some(i) => i
+            };
+            match g.get(r,c) {
+                None => '\0',
+                Some(c) => *c
+            }
+        })
+        .collect();
+    let ptn_str = ptn.as_str();
+    if valid_ptns.into_iter().any(|x| x == ptn_str) {
+        1
+    } else {
+        0
     }
 }
 
@@ -101,5 +140,26 @@ mod tests {
 
         //Assert
         assert_eq!(res, 18);
+    }
+
+    #[test]
+    fn test_find_mas_x() {
+        //Arrange
+        let test_grid = grid![
+            ['M', 'M', 'M', 'S', 'X', 'X', 'M', 'A', 'S', 'M']
+            ['M', 'S', 'A', 'M', 'X', 'M', 'S', 'M', 'S', 'A']
+            ['A', 'M', 'X', 'S', 'X', 'M', 'A', 'A', 'M', 'M']
+            ['M', 'S', 'A', 'M', 'A', 'S', 'M', 'S', 'M', 'X']
+            ['X', 'M', 'A', 'S', 'A', 'M', 'X', 'A', 'M', 'M']
+            ['X', 'X', 'A', 'M', 'M', 'X', 'X', 'A', 'M', 'A']
+            ['S', 'M', 'S', 'M', 'S', 'A', 'S', 'X', 'S', 'S']
+            ['S', 'A', 'X', 'A', 'M', 'A', 'S', 'A', 'A', 'A']
+            ['M', 'A', 'M', 'M', 'M', 'X', 'M', 'M', 'M', 'M']
+            ['M', 'X', 'M', 'X', 'A', 'X', 'M', 'A', 'S', 'X']];
+        //Act
+        let res = find_mas_x_count(test_grid);
+
+        //Assert
+        assert_eq!(res, 9);
     }
 }
