@@ -13,7 +13,9 @@ pub fn part_01(fname: &str) {
 }
 
 pub fn part_02(fname: &str) {
-    println!("STUB");
+    let inp = parse_input(fname);
+    let res = solve_part_02(inp);
+    println!("Part 02: {}", res);
 }
 
 struct Input {

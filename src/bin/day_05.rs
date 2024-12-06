@@ -4,4 +4,3 @@ fn main() {
     part_01("input/05.txt");
     part_02("input/05.txt");
 }
-
