@@ -4,7 +4,9 @@ use rule::*;
 use crate::read_file::get_lines;
 
 pub fn part_01(fname: &str) {
-    println!("STUB");
+    let inp = parse_input(fname);
+    let res = solve_part_01(inp);
+    println!("Part 01: {}", res);
 }
 
 pub fn part_02(fname: &str) {
