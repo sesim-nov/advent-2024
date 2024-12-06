@@ -14,7 +14,7 @@ pub fn part_02(fname: &str) {
     println!("Part 02: {}", xmases);
 }
 
-fn read_input(fname: &str) -> Grid<char>{
+fn read_input(fname: &str) -> Grid<char> {
     let mut lines = get_lines(fname);
     let mut grid_base: Vec<char> = lines.next().unwrap().unwrap().chars().collect();
     let row_size = grid_base.len();
@@ -25,13 +25,26 @@ fn read_input(fname: &str) -> Grid<char>{
     Grid::from_vec(grid_base, row_size)
 }
 
-/// Find the count of times the string XMAS appears in a grid. 
+/// Find the count of times the string XMAS appears in a grid.
 fn find_xmas_count(g: Grid<char>) -> usize {
-    let directions: [(isize, isize); 9] = [(0,-1), (0,0), (0,1), (1,-1), (1,0), (1,1), (-1,-1), (-1,0), (-1,1)];
+    let directions: [(isize, isize); 9] = [
+        (0, -1),
+        (0, 0),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+    ];
     let mut total: usize = 0;
     for (pos, x) in g.indexed_iter() {
         if *x == 'X' {
-            total += directions.iter().map(|dir| look_for_xmas(pos, *dir, &g)).sum::<usize>();
+            total += directions
+                .iter()
+                .map(|dir| look_for_xmas(pos, *dir, &g))
+                .sum::<usize>();
         }
     }
     total
@@ -42,16 +55,16 @@ fn look_for_xmas(pos: (usize, usize), dir: (isize, isize), g: &Grid<char>) -> us
     let mut curr_col = pos.1;
     let mut sequence = g.get(curr_row, curr_col).unwrap().to_string();
     loop {
-        curr_row = match curr_row.checked_add_signed(dir.0){
+        curr_row = match curr_row.checked_add_signed(dir.0) {
             Some(e) => e,
-            None => {break 0}
+            None => break 0,
         };
-        curr_col = match curr_col.checked_add_signed(dir.1){
+        curr_col = match curr_col.checked_add_signed(dir.1) {
             Some(e) => e,
-            None => {break 0}
+            None => break 0,
         };
         match g.get(curr_row, curr_col) {
-            None => {break 0},
+            None => break 0,
             Some(ch) => sequence.push(*ch),
         }
         match sequence.as_str() {
@@ -59,12 +72,12 @@ fn look_for_xmas(pos: (usize, usize), dir: (isize, isize), g: &Grid<char>) -> us
             "XM" => continue,
             "XMA" => continue,
             "XMAS" => break 1,
-            _ => break 0
+            _ => break 0,
         }
     }
 }
 
-/// Find the count of times the X-shaped MAS pattern appears in a grid. 
+/// Find the count of times the X-shaped MAS pattern appears in a grid.
 fn find_mas_x_count(g: Grid<char>) -> usize {
     let mut total: usize = 0;
     for (pos, x) in g.indexed_iter() {
@@ -77,19 +90,21 @@ fn find_mas_x_count(g: Grid<char>) -> usize {
 
 fn find_mas_x(pos: (usize, usize), g: &Grid<char>) -> usize {
     let valid_ptns = ["SSMM", "MMSS", "MSMS", "SMSM"];
-    let quadrants = vec![(-1, -1), (-1, 1), (1, -1), (1,1)];
-    let ptn: String = quadrants.iter().map(|(dr,dc)| -> char {
+    let quadrants = vec![(-1, -1), (-1, 1), (1, -1), (1, 1)];
+    let ptn: String = quadrants
+        .iter()
+        .map(|(dr, dc)| -> char {
             let r = match pos.0.checked_add_signed(*dr) {
                 None => return '\0',
-                Some(i)=> i
+                Some(i) => i,
             };
             let c = match pos.1.checked_add_signed(*dc) {
                 None => return '\0',
-                Some(i) => i
+                Some(i) => i,
             };
-            match g.get(r,c) {
+            match g.get(r, c) {
                 None => '\0',
-                Some(c) => *c
+                Some(c) => *c,
             }
         })
         .collect();
@@ -110,15 +125,14 @@ mod tests {
     fn test_read_input() {
         //Arrange
         let fname = "test_input/04.txt";
-        
+
         //Act
         let res = read_input(fname);
 
         //Assert
-        assert_eq!('M', *res.get(0,0).unwrap());
-        assert_eq!('S', *res.get(1,1).unwrap());
-        assert_eq!('X', *res.get(2,2).unwrap());
-
+        assert_eq!('M', *res.get(0, 0).unwrap());
+        assert_eq!('S', *res.get(1, 1).unwrap());
+        assert_eq!('X', *res.get(2, 2).unwrap());
     }
 
     #[test]

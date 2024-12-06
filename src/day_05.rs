@@ -23,7 +23,7 @@ struct Input {
     updates: Vec<Vec<usize>>,
 }
 
-fn parse_input(fname: &str) -> Input{
+fn parse_input(fname: &str) -> Input {
     let mut lines = get_lines(fname);
     let mut rules: Vec<Rule> = Vec::new();
     let mut updates: Vec<Vec<usize>> = Vec::new();
@@ -58,10 +58,7 @@ fn parse_input(fname: &str) -> Input{
         updates.push(new_update);
     }
 
-    Input {
-        rules,
-        updates
-    }
+    Input { rules, updates }
 }
 
 fn solve_part_01(inp: Input) -> usize {
@@ -86,7 +83,7 @@ fn solve_part_02(inp: Input) -> usize {
             up_cpy.sort_by(|l, r| -> Ordering {
                 let mut prior = HashSet::new();
                 prior.insert(*l);
-                if rules.iter().all(|x| x.entry_follows_rule(r, &prior)){
+                if rules.iter().all(|x| x.entry_follows_rule(r, &prior)) {
                     Ordering::Less
                 } else {
                     Ordering::Greater
