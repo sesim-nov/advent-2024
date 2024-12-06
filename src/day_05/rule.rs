@@ -20,7 +20,7 @@ impl Rule {
         }
     }
 
-    fn vector_follows_rule(&self, v: &Vec<usize>) -> bool {
+    pub fn vector_follows_rule(&self, v: &Vec<usize>) -> bool {
         let mut prior: HashSet<usize> = HashSet::new();
         for entry in v{
             if !self.entry_follows_rule(&entry, &prior) {

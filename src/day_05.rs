@@ -57,6 +57,18 @@ fn parse_input(fname: &str) -> Input{
     }
 }
 
+fn solve_part_01(inp: Input) -> usize {
+    let rules = inp.rules;
+    let updates = inp.updates;
+    let mut total = 0;
+    for update in updates {
+        if rules.iter().all(|x| x.vector_follows_rule(&update)) {
+            total += update.get(update.len() / 2).unwrap();
+        }
+    }
+    total
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -72,5 +84,17 @@ mod tests {
         assert_eq!(res.rules.get(20).unwrap().right, 13);
         assert_eq!(res.updates.len(), 6);
         assert_eq!(*res.updates.get(1).unwrap().get(2).unwrap(), 53);
+    }
+
+    #[test]
+    fn test_solve() {
+        //Arrange
+        let inp = parse_input("test_input/05.txt");
+
+        //Act
+        let res = solve_part_01(inp);
+
+        //Assert
+        assert_eq!(res, 143);
     }
 }
