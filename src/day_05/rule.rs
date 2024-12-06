@@ -5,6 +5,7 @@ pub struct Rule {
 }
 
 impl Rule {
+    #[allow(dead_code)]
     fn new(left: usize, right: usize) -> Self {
         Self {
             left,
@@ -12,7 +13,7 @@ impl Rule {
         }
     }
     /// Returns TRUE if rule is valid for the given entry
-    fn entry_follows_rule(&self, entry: &usize, prior: &HashSet<usize>) -> bool {
+    pub fn entry_follows_rule(&self, entry: &usize, prior: &HashSet<usize>) -> bool {
         if *entry == self.left {
             !prior.contains(&self.right)
         } else {

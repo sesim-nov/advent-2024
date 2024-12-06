@@ -1,4 +1,7 @@
 mod rule;
+use std::cmp::Ordering;
+use std::collections::HashSet;
+
 use rule::*;
 
 use crate::read_file::get_lines;
@@ -71,6 +74,28 @@ fn solve_part_01(inp: Input) -> usize {
     total
 }
 
+fn solve_part_02(inp: Input) -> usize {
+    let rules = inp.rules;
+    let updates = inp.updates;
+    let mut total = 0;
+    for update in updates {
+        if !rules.iter().all(|x| x.vector_follows_rule(&update)) {
+            let mut up_cpy = update.clone();
+            up_cpy.sort_by(|l, r| -> Ordering {
+                let mut prior = HashSet::new();
+                prior.insert(*l);
+                if rules.iter().all(|x| x.entry_follows_rule(r, &prior)){
+                    Ordering::Less
+                } else {
+                    Ordering::Greater
+                }
+            });
+            total += up_cpy.get(up_cpy.len() / 2).unwrap();
+        }
+    }
+    total
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -89,7 +114,7 @@ mod tests {
     }
 
     #[test]
-    fn test_solve() {
+    fn test_solve_01() {
         //Arrange
         let inp = parse_input("test_input/05.txt");
 
@@ -98,5 +123,17 @@ mod tests {
 
         //Assert
         assert_eq!(res, 143);
+    }
+
+    #[test]
+    fn test_solve_02() {
+        //Arrange
+        let inp = parse_input("test_input/05.txt");
+
+        //Act
+        let res = solve_part_02(inp);
+
+        //Assert
+        assert_eq!(res, 123);
     }
 }
