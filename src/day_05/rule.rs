@@ -1,6 +1,35 @@
+use std::collections::HashSet;
 pub struct Rule {
     pub left: usize, 
     pub right: usize,
+}
+
+impl Rule {
+    fn new(left: usize, right: usize) -> Self {
+        Self {
+            left,
+            right,
+        }
+    }
+    /// Returns TRUE if rule is valid for the given entry
+    fn entry_follows_rule(&self, entry: &usize, prior: &HashSet<usize>) -> bool {
+        if *entry == self.left {
+            !prior.contains(&self.right)
+        } else {
+            true
+        }
+    }
+
+    fn vector_follows_rule(&self, v: &Vec<usize>) -> bool {
+        let mut prior: HashSet<usize> = HashSet::new();
+        for entry in v{
+            if !self.entry_follows_rule(&entry, &prior) {
+                return false;
+            }
+            prior.insert(*entry);
+        }
+        true
+    }
 }
 
 impl TryFrom<&str> for Rule {
@@ -35,6 +64,26 @@ impl TryFrom<&str> for Rule {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_rule_apply() {
+        //Arrange
+        let rules = [
+            Rule::new(1,2),
+            Rule::new(2,3),
+            Rule::new(3,4),
+        ];
+        let v1 = vec![1,2,3,4];
+        let v2 = vec![1,3,2,4];
+
+        //Act
+        let r1 = rules.iter().all(|x| x.vector_follows_rule(&v1));
+        let r2 = rules.iter().all(|x| x.vector_follows_rule(&v2));
+
+        //Assert
+        assert!(r1);
+        assert!(!r2);
+    }
 
     #[test]
     fn test_rule_parse() {
