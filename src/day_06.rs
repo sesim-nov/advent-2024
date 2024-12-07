@@ -1,4 +1,4 @@
-use std::{collections::HashSet};
+use std::{collections::HashMap};
 
 use crate::read_file::get_lines;
 
@@ -43,7 +43,7 @@ struct Guard {
     start_dir: Direction,
     pos: (usize, usize),
     dir: Direction,
-    move_history: HashSet<(usize, usize)>,
+    move_history: HashMap<(usize, usize), Direction>,
 }
 
 impl Guard {
@@ -54,7 +54,7 @@ impl Guard {
             start_dir: Direction::Left,
             pos: (0,0),
             dir: Direction::Left,
-            move_history: HashSet::new(),
+            move_history: HashMap::new(),
         }
     }
     fn update(&mut self, pos: (usize, usize), dir: Direction) {
@@ -63,7 +63,7 @@ impl Guard {
         self.pos = pos;
         self.dir = dir;
         self.move_history.clear();
-        self.move_history.insert(pos);
+        self.move_history.insert(pos, dir);
     }
     fn turn_right(&mut self) {
         self.dir = match self.dir {
@@ -75,9 +75,16 @@ impl Guard {
     }
     fn move_to(&mut self, new_pos: (usize, usize)) {
         self.pos = new_pos;
-        self.move_history.insert(new_pos);
+        self.move_history.insert(new_pos, self.dir);
         if !self.started {
             self.started = true;
+        }
+    }
+    fn cycle_detect(&self, next_pos: (usize, usize)) -> bool{
+        let history_result = self.move_history.get(&next_pos);
+        match history_result{
+            Some(dir) => *dir == self.dir && self.started,
+            None => false
         }
     }
 }
@@ -103,7 +110,7 @@ impl Map {
             };
             if proposed_next_r >= self.bounds.0 || proposed_next_c >= self.bounds.1 {
                 break TravelStatus::Exit;
-            } else if self.guard.pos == self.guard.start_pos && self.guard.dir == self.guard.start_dir && self.guard.started {
+            } else if self.guard.cycle_detect((proposed_next_r,proposed_next_c)) {
                 break TravelStatus::Cycle;
             } else {
                 if self.obstacles.iter().any(|x| x.0 == proposed_next_r && x.1 == proposed_next_c) {
@@ -215,7 +222,7 @@ mod tests {
             start_pos: (1,1),
             dir: Direction::Right,
             pos: (1,1),
-            move_history: HashSet::new(),
+            move_history: HashMap::new(),
         };
         let mut board = Map {
             bounds: (10,10),
