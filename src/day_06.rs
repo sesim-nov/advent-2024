@@ -36,6 +36,7 @@ enum TravelStatus {
     Cycle,
 }
 
+#[derive(Clone)]
 struct Guard {
     start_pos: (usize, usize),
     start_dir: Direction,
@@ -76,6 +77,7 @@ impl Guard {
     }
 }
 
+#[derive(Clone)]
 struct Map {
     bounds: (usize, usize),
     obstacles: Vec<(usize, usize)>,
@@ -96,7 +98,7 @@ impl Map {
             };
             if proposed_next_r >= self.bounds.0 || proposed_next_c >= self.bounds.1 {
                 break TravelStatus::Exit;
-            } else if (proposed_next_c, proposed_next_r) == self.guard.start_pos && self.guard.dir == self.guard.start_dir {
+            } else if self.guard.pos == self.guard.start_pos && self.guard.dir == self.guard.start_dir {
                 break TravelStatus::Cycle;
             } else {
                 if self.obstacles.iter().any(|x| x.0 == proposed_next_r && x.1 == proposed_next_c) {
@@ -109,15 +111,40 @@ impl Map {
             }
         }
     }
+    fn insert_obstacle(&mut self, new_obstacle: (usize, usize)) {
+        self.obstacles.push(new_obstacle);
+    }
+    fn get_num_visited(&mut self) -> Option<usize> {
+        let mut status = TravelStatus::Continue;
+        while status == TravelStatus::Continue {
+            status = self.move_guard();
+        }
+        if status == TravelStatus::Exit {
+            Some(self.guard.move_history.len())
+        } else {
+            None
+        }
+    }
 }
 
 fn solve_part_1(fname: &str) -> usize {
     let mut board = parse_game_board(fname);
-    let mut status = TravelStatus::Continue;
-    while status == TravelStatus::Continue {
-        status = board.move_guard();
+    board.get_num_visited().unwrap()
+}
+
+fn solve_part_2(fname: &str) -> usize {
+    let base_board = parse_game_board(fname);
+    let mut valid_locations = 0;
+    for r in 0..base_board.bounds.0 {
+        for c in 0..base_board.bounds.1 {
+            let mut cloned_board = base_board.clone();
+            cloned_board.insert_obstacle((r,c));
+            if let None = cloned_board.get_num_visited() {
+                valid_locations += 1;
+            }
+        }
     }
-    board.guard.move_history.len()
+    valid_locations
 }
 
 fn parse_game_board(fname: &str) -> Map {
@@ -172,5 +199,35 @@ mod tests {
         let steps = solve_part_1("test_input/06.txt");
         //Assert
         assert_eq!(steps, 41)
+    }
+
+    #[test]
+    fn test_cycle_detection() {
+        //Arrange
+        let guard = Guard {
+            start_dir: Direction::Right,
+            start_pos: (1,1),
+            dir: Direction::Right,
+            pos: (1,1),
+            move_history: HashSet::new(),
+        };
+        let mut board = Map {
+            bounds: (10,10),
+            obstacles: vec![(0,1), (1,9), (8,0), (9,8)],
+            guard
+        };
+        //Act
+        let res = board.get_num_visited();
+        //Assert
+        assert_eq!(None, res);
+    }
+
+    #[test]
+    fn test_solve_2() {
+        //Arrange
+        //Act
+        let valid_locs = solve_part_2("test_input/06.txt");
+        //Assert
+        assert_eq!(valid_locs, 6)
     }
 }
