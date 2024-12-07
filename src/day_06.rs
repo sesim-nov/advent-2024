@@ -39,8 +39,6 @@ enum TravelStatus {
 #[derive(Clone)]
 struct Guard {
     started: bool,
-    start_pos: (usize, usize),
-    start_dir: Direction,
     pos: (usize, usize),
     dir: Direction,
     move_history: HashMap<(usize, usize), Direction>,
@@ -50,16 +48,12 @@ impl Guard {
     fn new() -> Self {
         Self {
             started: false,
-            start_pos: (0,0),
-            start_dir: Direction::Left,
             pos: (0,0),
             dir: Direction::Left,
             move_history: HashMap::new(),
         }
     }
     fn update(&mut self, pos: (usize, usize), dir: Direction) {
-        self.start_pos = pos;
-        self.start_dir = dir;
         self.pos = pos;
         self.dir = dir;
         self.move_history.clear();
@@ -218,8 +212,6 @@ mod tests {
         //Arrange
         let guard = Guard {
             started: false,
-            start_dir: Direction::Right,
-            start_pos: (1,1),
             dir: Direction::Right,
             pos: (1,1),
             move_history: HashMap::new(),
