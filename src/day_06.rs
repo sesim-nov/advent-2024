@@ -1,4 +1,4 @@
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 use crate::read_file::get_lines;
 
@@ -6,8 +6,8 @@ pub fn part_01(fname: &str) {
     println!("Part 1: {}", solve_part_1(fname));
 }
 
-pub fn part_02(_fname: &str) {
-    println!("STUB");
+pub fn part_02(fname: &str) {
+    println!("Part 2: {}", solve_part_2(fname));
 }
 
 #[derive(Copy, Clone, PartialEq, Eq)]
