@@ -38,6 +38,7 @@ enum TravelStatus {
 
 #[derive(Clone)]
 struct Guard {
+    started: bool,
     start_pos: (usize, usize),
     start_dir: Direction,
     pos: (usize, usize),
@@ -48,6 +49,7 @@ struct Guard {
 impl Guard {
     fn new() -> Self {
         Self {
+            started: false,
             start_pos: (0,0),
             start_dir: Direction::Left,
             pos: (0,0),
@@ -74,6 +76,9 @@ impl Guard {
     fn move_to(&mut self, new_pos: (usize, usize)) {
         self.pos = new_pos;
         self.move_history.insert(new_pos);
+        if !self.started {
+            self.started = true;
+        }
     }
 }
 
@@ -98,7 +103,7 @@ impl Map {
             };
             if proposed_next_r >= self.bounds.0 || proposed_next_c >= self.bounds.1 {
                 break TravelStatus::Exit;
-            } else if self.guard.pos == self.guard.start_pos && self.guard.dir == self.guard.start_dir {
+            } else if self.guard.pos == self.guard.start_pos && self.guard.dir == self.guard.start_dir && self.guard.started {
                 break TravelStatus::Cycle;
             } else {
                 if self.obstacles.iter().any(|x| x.0 == proposed_next_r && x.1 == proposed_next_c) {
@@ -205,6 +210,7 @@ mod tests {
     fn test_cycle_detection() {
         //Arrange
         let guard = Guard {
+            started: false,
             start_dir: Direction::Right,
             start_pos: (1,1),
             dir: Direction::Right,
