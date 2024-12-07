@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet};
 
 use crate::read_file::get_lines;
 
@@ -10,6 +10,7 @@ pub fn part_02(_fname: &str) {
     println!("STUB");
 }
 
+#[derive(Copy, Clone, PartialEq, Eq)]
 enum Direction {
     Up,
     Down,
@@ -28,7 +29,16 @@ impl Direction {
     }
 }
 
+#[derive(PartialEq, Eq)]
+enum TravelStatus {
+    Continue,
+    Exit,
+    Cycle,
+}
+
 struct Guard {
+    start_pos: (usize, usize),
+    start_dir: Direction,
     pos: (usize, usize),
     dir: Direction,
     move_history: HashSet<(usize, usize)>,
@@ -37,14 +47,19 @@ struct Guard {
 impl Guard {
     fn new() -> Self {
         Self {
+            start_pos: (0,0),
+            start_dir: Direction::Left,
             pos: (0,0),
             dir: Direction::Left,
             move_history: HashSet::new(),
         }
     }
     fn update(&mut self, pos: (usize, usize), dir: Direction) {
+        self.start_pos = pos;
+        self.start_dir = dir;
         self.pos = pos;
         self.dir = dir;
+        self.move_history.clear();
         self.move_history.insert(pos);
     }
     fn turn_right(&mut self) {
@@ -68,20 +83,28 @@ struct Map {
 }
 
 impl Map {
-    fn move_guard(&mut self) -> Option<(usize, usize)> {
+    fn move_guard(&mut self) -> TravelStatus {
         loop{
             let proposed_dir = self.guard.dir.get_tuple();
-            let proposed_next_r = self.guard.pos.0.checked_add_signed(proposed_dir.0)?;
-            let proposed_next_c = self.guard.pos.1.checked_add_signed(proposed_dir.1)?;
+            let proposed_next_r = match self.guard.pos.0.checked_add_signed(proposed_dir.0) {
+                Some(i) => i,
+                None => break TravelStatus::Exit,
+            };
+            let proposed_next_c = match self.guard.pos.1.checked_add_signed(proposed_dir.1) {
+                Some(i) => i,
+                None => break TravelStatus::Exit,
+            };
             if proposed_next_r >= self.bounds.0 || proposed_next_c >= self.bounds.1 {
-                break None;
+                break TravelStatus::Exit;
+            } else if (proposed_next_c, proposed_next_r) == self.guard.start_pos && self.guard.dir == self.guard.start_dir {
+                break TravelStatus::Cycle;
             } else {
                 if self.obstacles.iter().any(|x| x.0 == proposed_next_r && x.1 == proposed_next_c) {
                     self.guard.turn_right();
                     continue;
                 } else {
                     self.guard.move_to((proposed_next_r, proposed_next_c));
-                    break Some((proposed_next_r, proposed_next_c));
+                    break TravelStatus::Continue;
                 }
             }
         }
@@ -90,8 +113,8 @@ impl Map {
 
 fn solve_part_1(fname: &str) -> usize {
     let mut board = parse_game_board(fname);
-    let mut status = Some((0,0));
-    while let Some(_) = status {
+    let mut status = TravelStatus::Continue;
+    while status == TravelStatus::Continue {
         status = board.move_guard();
     }
     board.guard.move_history.len()
