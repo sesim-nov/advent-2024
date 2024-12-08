@@ -21,19 +21,31 @@ impl Equation {
         let constants: Vec<usize> = spl.next().unwrap().split_whitespace().map(|x| x.parse().unwrap()).collect();
         Self { check_val, constants}
     }
-    fn validate_check_val(&self) -> bool {
-        self.recurse_check_val(0, 0)
+    fn validate_check_val_p1(&self) -> bool {
+        self.recurse_check_val(0, 0, false)
     }
-    fn recurse_check_val(&self, acc: usize, pos: usize) -> bool {
+    fn validate_check_val_p2(&self) -> bool {
+        self.recurse_check_val(0, 0, true)
+    }
+    fn recurse_check_val(&self, acc: usize, pos: usize, include_concat: bool) -> bool {
         if pos >= self.constants.len() {
             acc == self.check_val
         } else {
             let next_val = *self.constants.get(pos).unwrap();
             // Check addition side
-            let add = self.recurse_check_val(acc + next_val, pos + 1);
+            let add = self.recurse_check_val(acc + next_val, pos + 1, include_concat);
             // Check multiplication side
-            let mul = self.recurse_check_val(acc * next_val, pos + 1);
-            add || mul
+            let mul = self.recurse_check_val(acc * next_val, pos + 1, include_concat);
+            // Check concatenation
+            let concat = if include_concat {
+                let mut new_acc = acc.to_string();
+                new_acc.push_str(next_val.to_string().as_str());
+                let new_acc_parsed: usize = new_acc.parse().unwrap();
+                self.recurse_check_val(new_acc_parsed, pos + 1, include_concat)
+            } else {
+                false
+            };
+            add || mul || concat
         }
     }
 }
@@ -51,7 +63,7 @@ fn solve_part_1(fname: &str) -> usize{
     let eqs = parse_input(fname);
     let mut total = 0;
     for eq in eqs {
-        total += if eq.validate_check_val() {
+        total += if eq.validate_check_val_p1() {
             eq.check_val
         } else {
             0
@@ -86,8 +98,8 @@ mod tests {
             constants: vec![6, 8, 6, 15],
         };
         //Act
-        let res_1 = eq_1.validate_check_val();
-        let res_2 = eq_2.validate_check_val();
+        let res_1 = eq_1.validate_check_val_p1();
+        let res_2 = eq_2.validate_check_val_p1();
         //Assert
         assert!(res_1);
         assert!(!res_2);
