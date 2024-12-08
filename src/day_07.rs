@@ -6,7 +6,8 @@ pub fn part_01(fname: &str) {
 }
 
 pub fn part_02(fname: &str) {
-    println!("STUB");
+    let res = solve_part_2(fname);
+    println!("Part 02: {}", res);
 }
 
 struct Equation {
