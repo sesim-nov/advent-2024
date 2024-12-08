@@ -39,10 +39,8 @@ impl Equation {
             let mul = self.recurse_check_val(acc * next_val, pos + 1, include_concat);
             // Check concatenation
             let concat = if include_concat {
-                let mut new_acc = acc.to_string();
-                new_acc.push_str(next_val.to_string().as_str());
-                let new_acc_parsed: usize = new_acc.parse().unwrap();
-                self.recurse_check_val(new_acc_parsed, pos + 1, include_concat)
+                let new_acc = (acc * 10usize.pow(next_val.ilog10() + 1)) + next_val;
+                self.recurse_check_val(new_acc, pos + 1, include_concat)
             } else {
                 false
             };
@@ -154,5 +152,16 @@ mod tests {
         let res = solve_part_2("test_input/07.txt");
         //Assert
         assert_eq!(res, 11387);
+    }
+
+    #[test]
+    fn test_fast_concat() {
+        //Arrange
+        let a: usize = 10;
+        let b: usize = 250;
+        //Act
+        let c = (a * 10usize.pow(b.ilog10() + 1)) + b;
+        //Assert
+        assert_eq!(c, 10250);
     }
 }
