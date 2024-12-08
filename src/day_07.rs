@@ -20,6 +20,21 @@ impl Equation {
         let constants: Vec<usize> = spl.next().unwrap().split_whitespace().map(|x| x.parse().unwrap()).collect();
         Self { check_val, constants}
     }
+    fn validate_check_val(&self) -> bool {
+        self.recurse_check_val(0, 0)
+    }
+    fn recurse_check_val(&self, acc: usize, pos: usize) -> bool {
+        if pos >= self.constants.len() {
+            acc == self.check_val
+        } else {
+            let next_val = *self.constants.get(pos).unwrap();
+            // Check addition side
+            let add = self.recurse_check_val(acc + next_val, pos + 1);
+            // Check multiplication side
+            let mul = self.recurse_check_val(acc * next_val, pos + 1);
+            add || mul
+        }
+    }
 }
 
 fn parse_input(fname: &str) -> Vec<Equation> {
@@ -29,6 +44,19 @@ fn parse_input(fname: &str) -> Vec<Equation> {
         equations.push(Equation::from_str(line.unwrap().as_str()));
     }
     equations
+}
+
+fn solve_part_1(fname: &str) -> usize{
+    let eqs = parse_input(fname);
+    let mut total = 0;
+    for eq in eqs {
+        total += if eq.validate_check_val() {
+            eq.check_val
+        } else {
+            0
+        };
+    }
+    total
 }
 
 #[cfg(test)]
@@ -43,5 +71,33 @@ mod tests {
         //Assert
         assert_eq!(res.get(0).unwrap().check_val, 190);
         assert_eq!(res.get(8).unwrap().check_val, 292);
+    }
+
+    #[test]
+    fn test_checking() {
+        //Arrange
+        let eq_1 = Equation{
+            check_val: 190,
+            constants: vec![10, 19],
+        };
+        let eq_2 = Equation {
+            check_val: 7290,
+            constants: vec![6, 8, 6, 15],
+        };
+        //Act
+        let res_1 = eq_1.validate_check_val();
+        let res_2 = eq_2.validate_check_val();
+        //Assert
+        assert!(res_1);
+        assert!(!res_2);
+    }
+
+    #[test]
+    fn test_part_01() {
+        //Arrange
+        //Act
+        let res = solve_part_1("test_input/07.txt");
+        //Assert
+        assert_eq!(res, 3749);
     }
 }
