@@ -72,6 +72,19 @@ fn solve_part_1(fname: &str) -> usize{
     total
 }
 
+fn solve_part_2(fname: &str) -> usize{
+    let eqs = parse_input(fname);
+    let mut total = 0;
+    for eq in eqs {
+        total += if eq.validate_check_val_p2() {
+            eq.check_val
+        } else {
+            0
+        };
+    }
+    total
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -106,11 +119,39 @@ mod tests {
     }
 
     #[test]
+    fn test_checking_2() {
+        //Arrange
+        let eq_1 = Equation{
+            check_val: 190,
+            constants: vec![10, 19],
+        };
+        let eq_2 = Equation {
+            check_val: 7290,
+            constants: vec![6, 8, 6, 15],
+        };
+        //Act
+        let res_1 = eq_1.validate_check_val_p2();
+        let res_2 = eq_2.validate_check_val_p2();
+        //Assert
+        assert!(res_1);
+        assert!(res_2);
+    }
+
+    #[test]
     fn test_part_01() {
         //Arrange
         //Act
         let res = solve_part_1("test_input/07.txt");
         //Assert
         assert_eq!(res, 3749);
+    }
+
+    #[test]
+    fn test_part_02() {
+        //Arrange
+        //Act
+        let res = solve_part_2("test_input/07.txt");
+        //Assert
+        assert_eq!(res, 11387);
     }
 }
