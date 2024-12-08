@@ -1,7 +1,8 @@
 use crate::read_file::get_lines;
 
 pub fn part_01(fname: &str) {
-    println!("STUB");
+    let res = solve_part_1(fname);
+    println!("Part 01: {}", res);
 }
 
 pub fn part_02(fname: &str) {
